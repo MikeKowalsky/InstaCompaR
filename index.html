@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>InstCompaR</title>
+
+    <!-- js & jquery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+
+    <!-- bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <!-- chart -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+    <script src="https://unpkg.com/chartkick@2.3.3"></script>
+    <script src="https://unpkg.com/vue-chartkick@0.2.1/dist/vue-chartkick.js"></script>
+
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js"></script>
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/custom.css">
+
+</head>
+<body>
+    
+	
+	<div id="app">
+
+		<header>
+			<nav class="navbar navbar-light bg-light">
+				<div class="container d-flex justify-content-between align-items-end">
+					<div class="px-2 d-flex d-flex align-items-center">
+						<img class="px-2" src="logo.png" id="logo">
+				  	<h2>IstaCompaR</h2>
+				  </div>
+				  <h6 class="h5color"><i>Compare one or more profile! Just type in profile name and click enter!</i></h6>
+				</div>
+			</nav>
+
+		</header>
+
+    <div v-if="!loaded" class="wrapper">
+        <div id="preloader_2">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+
+		<template v-if="loaded">
+
+			<div class="container d-flex justify-content-end py-1 my-2">
+				<input class="form-control w-25" v-model='keyword' v-on:keyup.enter='compareProfile' type="text" name="Search" placeholder="Type profile name and press enter">
+			</div>
+
+			<div class="container">
+      	<h5 class="py-2 h5color">Some random fancy profiles</h5>
+      </div>
+
+      <div class="container d-flex flex-row flex-wrap justify-content-center">
+	      <div class="card border-secondary m-1" v-for="item in mainArray">
+				  <div class="card-body d-flex" v-on:click="showPostsElement(item.id)">
+				  	<img :src="item.profile_pic_url" alt="Card image cap">
+				  	<div class="px-2">
+				  		<h6><b>{{item.username}}</b></h6>
+				  		<small>{{item.full_name}}</small>
+					  	<div>
+						    <small class="pr-1"><b>{{item.edge_owner_to_timeline_media.count}}</b> posts</small>
+					      <small class="pr-1"><b>{{item.edge_followed_by.count}}</b> followers</small>
+					  	</div>
+					  	<div>
+					      <small class="pr-1"><b>{{item.edge_follow.count}}</b> following</small>
+					  	</div>
+					  </div>
+					  <!-- <button class="btn btn-primary btn-sm" v-on:click="showPostsElement(item.id)">Show Posts</button> -->
+				  </div>
+				</div>
+			</div>
+
+
+<!--       <div class="container d-flex flex-row flex-wrap justify-content-center">
+        <div v-for="item in mainArray">
+          <div class="flip-container" ontouchstart="this.classList.toggle('hover');">
+            <div class="flipper mx-3">
+              <div class="front">
+                <img :src="item.profile_pic_url">
+              </div>
+              <div class="back d-flex flex-column justify-content-center">
+                <p class="text-center font-weight-bold">{{item.username}}</p>
+                <p class="text-center small">{{item.full_name}}</p>
+                <p class="text-center small"><b>{{item.edge_follow.count}}</b> following</p>
+                <p class="text-center small"><b>{{item.edge_followed_by.count}}</b> followers</p>
+                <p class="text-center small"><b>{{item.edge_owner_to_timeline_media.count}}</b> posts</p>
+                <a class="btn btn-primary btn-sm" v-on:click="showPostsElement(item.id)" role="button">Show Posts</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+      <div class="container" v-if="showPosts">
+
+      	<h5 class="py-2 h5color">Last posts from chosen profile</h5>
+
+	      <div class="d-flex flex-row flex-wrap justify-content-center">
+	      	<div v-for="item in secPostWin">
+						<div class="cardPost d-flex flex-column justify-content-center align-items-center m-1">
+							<!-- <img :src="item.node.display_url"> -->
+							<a class="single_image" data-fancybox="gallery" :href="item.node.display_url"><img :src="item.node.display_url"/></a>
+							<div>
+								<small><b>{{item.node.edge_liked_by.count}}</b> likes</small>
+								<small class="pl-1"><b>{{item.node.edge_media_to_comment.count}}</b> comments</small>
+							</div>
+						</div>
+					</div>
+				</div>
+
+      </div>
+
+			<div class="container">
+      	<h5 class="py-2 h5color">Small tag analys</h5>
+      </div>
+    </template>
+
+    <div id="canvasParent" class="container d-flex justify-content-center pb-3 mb-3">
+    	<canvas id="my_canvas" width="1520" height="760" style="width: 760px; height: 380px">cloud</canvas>
+    </div>
+
+    <template>
+
+<!--       <div class="container d-flex justify-content-center pb-3 mb-3">
+	      <button class="btn btn-outline-success my-2 my-sm-0" v-on:click="showChartsMeth" type="submit">Want to see some charts?</button>
+      </div> -->
+
+      <div v-if="showCharts">
+
+				<div class="container">
+	      	<h5 class="py-2 h5color">Bunch of charts</h5>
+	      </div>
+
+				<p class="container"><b>Chart no 1:</b> Average likes / post</p>
+				<div  class="container d-flex justify-content-center pb-3 mb-3">
+					<pie-chart :data="chartAvg" :donut="true" label="Average no of likes per post"></pie-chart>
+				</div>
+
+				<p class="container"><b>Chart no 2:</b> No of followers</p>
+				<div  class="container d-flex justify-content-center pb-3 mb-3">
+					<bar-chart :data="chartFollowedByAll" xtitle="Follow by ..."></bar-chart>
+				</div>
+
+				<p class="container"><b>Chart no 3:</b> No of likes for last 12 posts</p>
+				<div  class="container d-flex justify-content-center pb-3 mb-3">
+					<line-chart :data="chartLikesInPosts" height="650px" xtitle="No of likes for last 12 posts"></line-chart>
+				</div>
+			</div>
+
+			<footer>
+				<nav class="navbar navbar-light bg-light d-flex justify-content-center">
+					<small>© 2018 IstaCompaR | All rights reserved</small>
+				</nav>
+			</footer>
+
+		</template>
+
+
+	</div>
+<!-- word cloud -->
+	<script src="scripts/wordcloud2.js"></script>
+
+<!-- random pofile -->
+	<script src="scripts/t100instaProf.js"></script>
+
+<!-- main script -->
+	<script src="scripts/main.js"></script>
+
+</body>
+</html>
